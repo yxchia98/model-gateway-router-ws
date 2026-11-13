@@ -11,3 +11,10 @@ After cloning this repository, initialize it with:
 ```bash
 git submodule update --init --recursive
 ```
+
+## Standalone deployments
+
+- [LiteLLM gateway](lite-llm/README.md): add models and routes in its Admin UI.
+- [NeMo Switchyard](nemo-switchyard/README.md): System One decisions and free OpenRouter completion targets.
+
+- [Routing playground](nemo-switchyard/frontend/README.md): interactive frontend for the standalone Switchyard gateway (localhost:3002).

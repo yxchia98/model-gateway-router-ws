@@ -13,7 +13,7 @@ services:
     init: true
     command: ["--config", "/app/config.yaml", "--host", "0.0.0.0", "--port", "4000", "--num_workers", "1", "--prometheus_metrics_port", "4001"]
     ports:
-      - "${BIND_ADDRESS:-127.0.0.1}:${LITELLM_PORT:-4000}:4000"
+      - "${BIND_ADDRESS:-0.0.0.0}:${LITELLM_PORT:-4000}:4000"
     environment:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:?Set LITELLM_MASTER_KEY}
       LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:?Set LITELLM_SALT_KEY}
@@ -88,7 +88,7 @@ services:
       - --storage.tsdb.retention.time=15d
       - --storage.tsdb.retention.size=5GB
     ports:
-      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+      - "0.0.0.0:${PROMETHEUS_PORT:-9090}:9090"
     volumes:
       - ./monitoring/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
       - prometheus_data:/prometheus
@@ -106,7 +106,7 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: "false"
     ports:
-      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+      - "0.0.0.0:${GRAFANA_PORT:-3000}:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/litellm.yaml:ro

@@ -1,0 +1,60 @@
+name: model-gateway-switchyard
+services:
+  frontend:
+    build: ./frontend
+    image: model-gateway-switchyard-ui:0.1.0
+    restart: unless-stopped
+    init: true
+    environment:
+      SWITCHYARD_URL: http://switchyard:4000
+      ROUTES_CONFIG: /app/routes.toml
+    ports:
+      - "0.0.0.0:${FRONTEND_PORT:-3002}:8080"
+    volumes:
+      - ./routes.toml:/app/routes.toml:ro
+    depends_on:
+      switchyard:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m,mode=1777
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+  switchyard:
+    build: .
+    image: model-gateway-switchyard:0.4.0a1
+    restart: unless-stopped
+    init: true
+    environment:
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?Set OPENROUTER_API_KEY in .env}
+    ports:
+      - "0.0.0.0:${SWITCHYARD_PORT:-4002}:4000"
+    volumes:
+      - ./routes.toml:/app/routes.toml:ro
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=32m,mode=1777
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

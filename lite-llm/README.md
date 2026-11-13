@@ -66,7 +66,7 @@ UI; they persist in its named volume. Confirm the LiteLLM target is UP at
 Prometheus `/targets`. The dedicated metrics listener is private on port 4001.
 Redis shares routing state; completion response caching is disabled.
 
-Published ports bind to loopback by default. PostgreSQL and Redis have no host
+The gateway binds to `0.0.0.0` by default and is reachable at `http://<host-ip>:4000`. Prometheus and Grafana also bind to `0.0.0.0`, on ports 9090 and 3000 when the monitoring profile is enabled. PostgreSQL and Redis have no host
 ports. For access from another computer:
 
 ```bash
