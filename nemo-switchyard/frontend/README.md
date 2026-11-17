@@ -4,6 +4,13 @@ A Dell-inspired blue-and-white frontend branded **APJ AI Innovation Hub** for th
 examples, response generation, decision-only previews, side-by-side route
 comparisons, a read-only route explorer and in-memory request history.
 
+## Deployment layouts
+
+Supports one-host deployment and separate gateway/frontend VMs. See
+[deployment instructions](../DEPLOYMENT.md) for complete commands,
+example environment files, network requirements and route-config synchronization.
+The frontend-only deployment needs only the remote `SWITCHYARD_URL`, not a provider key.
+
 ## Open the application
 
 The frontend is part of the parent Docker Compose stack:

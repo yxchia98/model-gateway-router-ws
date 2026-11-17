@@ -6,12 +6,12 @@ services:
     restart: unless-stopped
     init: true
     environment:
-      SWITCHYARD_URL: http://switchyard:4000
+      SWITCHYARD_URL: ${SWITCHYARD_URL:-http://switchyard:4000}
       ROUTES_CONFIG: /app/routes.toml
     ports:
       - "0.0.0.0:${FRONTEND_PORT:-3002}:8080"
     volumes:
-      - ./routes.toml:/app/routes.toml:ro
+      - ${ROUTES_FILE:-./routes.toml}:/app/routes.toml:ro
     depends_on:
       switchyard:
         condition: service_healthy
@@ -41,7 +41,7 @@ services:
     ports:
       - "0.0.0.0:${SWITCHYARD_PORT:-4002}:4000"
     volumes:
-      - ./routes.toml:/app/routes.toml:ro
+      - ${ROUTES_FILE:-./routes.toml}:/app/routes.toml:ro
     read_only: true
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=32m,mode=1777

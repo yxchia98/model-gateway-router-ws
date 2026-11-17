@@ -13,7 +13,17 @@ from urllib.parse import urlsplit
 
 STATIC = Path(__file__).resolve().parent / "static"
 CONFIG = Path(os.getenv("ROUTES_CONFIG", str(Path(__file__).resolve().parent.parent / "routes.toml")))
-UPSTREAM = os.getenv("SWITCHYARD_URL", "http://127.0.0.1:4002").rstrip("/")
+def upstream_url(value):
+    value = value.strip().rstrip("/")
+    parts = urlsplit(value)
+    if parts.scheme not in {"http", "https"} or not parts.hostname or parts.username or parts.password or parts.query or parts.fragment:
+        raise ValueError("SWITCHYARD_URL must be an http(s) gateway base URL without credentials, query or fragment")
+    if parts.path.rstrip("/").endswith("/v1"):
+        raise ValueError("SWITCHYARD_URL must not end with /v1; use the gateway base URL")
+    return value
+
+
+UPSTREAM = upstream_url(os.getenv("SWITCHYARD_URL", "http://127.0.0.1:4002"))
 
 
 def route_config():
@@ -137,7 +147,7 @@ class Handler(SimpleHTTPRequestHandler):
                 data = {"error": {"message": "Gateway returned an upstream error"}}
             return self.reply(error.code, {"error": data.get("error", data), "status": error.code})
         except (OSError, ValueError, urllib.error.URLError):
-            return self.reply(502, {"error": {"message": "Cannot reach Switchyard. Check that the gateway is running and its provider is available."}})
+            return self.reply(502, {"error": {"message": "Cannot reach the configured Switchyard gateway. Check SWITCHYARD_URL, gateway health, DNS, network/firewall rules, and upstream availability."}})
 
     def do_GET(self):
         path = urlsplit(self.path).path

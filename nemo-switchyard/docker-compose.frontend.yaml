@@ -1,0 +1,37 @@
+# Independent deployment; see DEPLOYMENT.md.
+name: model-gateway-switchyard-frontend
+services:
+  frontend:
+    build: ./frontend
+    image: model-gateway-switchyard-ui:0.1.0
+    restart: unless-stopped
+    init: true
+    environment:
+      SWITCHYARD_URL: ${SWITCHYARD_URL:?Set SWITCHYARD_URL to the gateway VM base URL, e.g. http://172.16.247.63:4002}
+      ROUTES_CONFIG: /app/routes.toml
+    ports:
+    - 0.0.0.0:${FRONTEND_PORT:-3002}:8080
+    volumes:
+    - ${ROUTES_FILE:-./routes.toml}:/app/routes.toml:ro
+    read_only: true
+    tmpfs:
+    - /tmp:rw,noexec,nosuid,size=16m,mode=1777
+    cap_drop:
+    - ALL
+    security_opt:
+    - no-new-privileges:true
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/', timeout=5)
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'

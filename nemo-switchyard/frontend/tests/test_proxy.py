@@ -92,6 +92,12 @@ class ProxyTests(unittest.TestCase):
         with self.assertRaises(urllib.error.HTTPError) as error:
             self.post({"route": "system-one", "prompt": "Hi"}, {"Origin": "http://untrusted.example"})
         self.assertEqual(error.exception.code, 403)
+    def test_remote_gateway_url_validation(self):
+        self.assertEqual(app.upstream_url(" http://gateway.lab:4002/ "), "http://gateway.lab:4002")
+        self.assertEqual(app.upstream_url("https://gateway.lab/router"), "https://gateway.lab/router")
+        for value in ("", "file:///tmp/gateway", "http://user:secret@gateway", "http://gateway/v1", "http://gateway?key=secret"):
+            with self.assertRaises(ValueError): app.upstream_url(value)
+
     def test_config_has_routes_and_no_credentials(self):
         with urllib.request.urlopen(self.url + "/api/config") as response: data = json.load(response)
         self.assertEqual({r["id"] for r in data["routes"]}, {"direct", "weighted-random", "system-one", "llm-classifier", "custom-selector", "session-pinned", "advisor-review"})
@@ -103,7 +109,7 @@ class ProxyTests(unittest.TestCase):
             with self.assertRaises(urllib.error.HTTPError) as error:
                 urllib.request.urlopen(self.url + "/api/health")
             self.assertEqual(error.exception.code, 502)
-            self.assertIn("Cannot reach Switchyard", error.exception.read().decode())
+            self.assertIn("Cannot reach the configured Switchyard gateway", error.exception.read().decode())
         finally: app.UPSTREAM = old
 
 

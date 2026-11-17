@@ -4,6 +4,13 @@ A standalone Switchyard v0.4.0a1 gateway and a Dell-inspired frontend that
 showcase routing methods. All configured upstream models use free OpenRouter
 endpoints. The gateway runs the native server from the pinned Python wheel.
 
+## Deployment layouts
+
+Supports one-host deployment and separate gateway/frontend VMs. See
+[deployment instructions](DEPLOYMENT.md) for complete commands,
+example environment files, network requirements and route-config synchronization.
+The frontend-only deployment needs only the remote `SWITCHYARD_URL`, not a provider key.
+
 ## Start and open
 
 ```bash
